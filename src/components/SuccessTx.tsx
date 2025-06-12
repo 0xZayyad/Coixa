@@ -15,7 +15,6 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { motion } from "framer-motion";
 import { useWallet } from "../context/WalletContext";
-import type { PiNetwork } from "../wallet/PiApi";
 import { getExplorerUrl } from "../services/Market";
 
 interface SuccessTxProps {

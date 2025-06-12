@@ -95,5 +95,65 @@ export class PiApi {
       .call();
   }
 
-  public async requestAirdrop() {}
+  public async isAccountActivated(publicKey: string): Promise<boolean> {
+    try {
+      await this.server.loadAccount(publicKey);
+      // If the account exists, it is activated
+      return true;
+    } catch (err: any) {
+      // If the account does not exist, it is not activated
+      if (err.response && err.response.status === 404) {
+        return false;
+      }
+      // For other errors, we can assume the account is not activated
+      console.error("Error checking account activation:", err);
+      throw new Error(`Failed to check account activation: ${err.message}`);
+    }
+  }
+  /**
+   * Activate a new wallet by creating an account with a starting balance
+   * @param sourceSecret The secret key of the source account that will fund the new wallet
+   * @param publicKey The public key of the new wallet to be activated
+   * @param startingBalance The initial balance to set for the new wallet, default is 1 Pi
+   * @throws Will throw an error if the activation fails
+   * @returns The response from the server after submitting the transaction
+   */
+  public async activateAccount(
+    sourceSecret: string,
+    publicKey: string,
+    startingBalance: number = 1
+  ) {
+    const sourceKeypair = Keypair.fromSecret(sourceSecret);
+    const sourcePublicKey = sourceKeypair.publicKey();
+    const isActivated = await this.isAccountActivated(publicKey);
+    if (isActivated) {
+      throw new Error("Account is already activated");
+    }
+    try {
+      const account = await this.server.loadAccount(sourcePublicKey);
+      const fee = await this.server.fetchBaseFee();
+      const transaction = new TransactionBuilder(account, {
+        networkPassphrase: this.networkPassphrase,
+        fee: fee.toString(),
+      })
+        .addOperation(
+          Operation.createAccount({
+            destination: publicKey,
+            startingBalance: startingBalance.toString(),
+          })
+        )
+        .setTimeout(40)
+        .build();
+      transaction.sign(sourceKeypair);
+      const response = await this.server.submitTransaction(transaction);
+      console.log("Activation response:", response);
+      return response;
+    } catch (err: any) {
+      console.error(err);
+      if (err.response && err.response.status === 400) {
+        throw new Error(`Activation failed: ${err.response.data.details}`);
+      }
+      throw new Error(`Failed to activate wallet: ${err.message}`);
+    }
+  }
 }

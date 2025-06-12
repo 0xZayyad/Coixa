@@ -44,44 +44,6 @@ export const LandingPage: React.FC = () => {
           }}
         >
           <MotionCard
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            sx={{
-              cursor: "pointer",
-              height: "250px",
-              background:
-                "linear-gradient(145deg, rgba(124, 58, 237, 0.1) 0%, rgba(91, 33, 182, 0.1) 100%)",
-              "&:hover": {
-                transform: "translateY(-5px)",
-                transition: "transform 0.2s",
-              },
-            }}
-            onClick={() => navigate("/create")}
-          >
-            <CardContent
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-              }}
-            >
-              <AccountBalanceWalletIcon
-                sx={{ fontSize: 48, mb: 2, color: "primary.main" }}
-              />
-              <Typography variant="h5" gutterBottom>
-                Create New Wallet
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Generate a new wallet with a secure recovery phrase
-              </Typography>
-            </CardContent>
-          </MotionCard>
-
-          <MotionCard
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
@@ -115,6 +77,43 @@ export const LandingPage: React.FC = () => {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Restore your wallet using a recovery phrase
+              </Typography>
+            </CardContent>
+          </MotionCard>
+          <MotionCard
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            sx={{
+              cursor: "pointer",
+              height: "250px",
+              background:
+                "linear-gradient(145deg, rgba(124, 58, 237, 0.1) 0%, rgba(91, 33, 182, 0.1) 100%)",
+              "&:hover": {
+                transform: "translateY(-5px)",
+                transition: "transform 0.2s",
+              },
+            }}
+            onClick={() => navigate("/create")}
+          >
+            <CardContent
+              sx={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              <AccountBalanceWalletIcon
+                sx={{ fontSize: 48, mb: 2, color: "primary.main" }}
+              />
+              <Typography variant="h5" gutterBottom>
+                Create New Wallet
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Generate a new wallet with a secure recovery phrase
               </Typography>
             </CardContent>
           </MotionCard>

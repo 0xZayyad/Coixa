@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Paper,
@@ -13,9 +13,6 @@ import {
   List,
   ListItem,
   Avatar,
-  ListItemButton,
-  ListItemIcon,
-  LinearProgress,
   Alert,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -24,7 +21,7 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SendIcon from "@mui/icons-material/Send";
 import ShareIcon from "@mui/icons-material/Share";
-import { Refresh, ArrowUpward, Add } from "@mui/icons-material";
+import { Refresh, ArrowUpward, Add, History } from "@mui/icons-material";
 import CallReceivedIcon from "@mui/icons-material/CallReceived";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -40,6 +37,7 @@ import { fetchPiPrice } from "../services/Market";
 import type { Horizon } from "@stellar/stellar-sdk";
 import { PiNetwork } from "../wallet/PiApi";
 import { Settings } from "../components/Settings";
+import { TransactionDetails } from "../components/TransactionDetails";
 
 export const WalletDashboard: React.FC = () => {
   const { wallet, network, logout } = useWallet();
@@ -65,6 +63,9 @@ export const WalletDashboard: React.FC = () => {
         | Horizon.ServerApi.InvokeHostFunctionOperationRecord
       >
     >();
+  const [selectedTx, setSelectedTx] =
+    useState<Horizon.ServerApi.OperationRecord | null>(null);
+
   useEffect(() => {
     const fetchPrice = async () => {
       const price = await fetchPiPrice();
@@ -119,13 +120,92 @@ export const WalletDashboard: React.FC = () => {
     await navigator.share({ text: wallet?.publicKey });
   };
 
-  if (loading) return <LinearProgress />;
+  const renderTransactionIcon = (tx: Horizon.ServerApi.OperationRecord) => {
+    switch (tx.type) {
+      case "payment":
+        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
+        return paymentOp.from === wallet?.publicKey ? (
+          <ArrowUpward />
+        ) : (
+          <CallReceivedIcon />
+        );
+      case "create_account":
+        return <AccountBalanceWalletIcon />;
+      default:
+        return <History />;
+    }
+  };
+
+  const renderTransactionAmount = (tx: Horizon.ServerApi.OperationRecord) => {
+    switch (tx.type) {
+      case "payment":
+        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
+        return (
+          <>
+            {paymentOp.from === wallet?.publicKey ? "-" : "+"}
+            {Number(parseFloat(paymentOp.amount).toFixed(4)).toLocaleString()} π
+          </>
+        );
+      case "create_account":
+        const createOp = tx as Horizon.ServerApi.CreateAccountOperationRecord;
+        return (
+          <>
+            {createOp.funder === wallet?.publicKey ? "-" : "+"}$
+            {Number(
+              parseFloat(createOp.starting_balance).toFixed(4)
+            ).toLocaleString()}{" "}
+            π
+          </>
+        );
+      default:
+        return "N/A";
+    }
+  };
+
+  const getTransactionTitle = (tx: Horizon.ServerApi.OperationRecord) => {
+    switch (tx.type) {
+      case "payment":
+        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
+        return paymentOp.from === wallet?.publicKey
+          ? `To: ${paymentOp.to.slice(0, 4)}....${paymentOp.to.slice(-4)}`
+          : `From: ${paymentOp.from.slice(0, 4)}....${paymentOp.from.slice(
+              -4
+            )}`;
+      case "create_account":
+        const createOp = tx as Horizon.ServerApi.CreateAccountOperationRecord;
+        const initial =
+          createOp.funder === wallet?.publicKey ? "Funded" : "Created by";
+        return `${initial} ${createOp.funder.slice(
+          0,
+          4
+        )}....${createOp.funder.slice(-4)}`;
+
+      default:
+        return tx.type.replace(/_/g, " ");
+    }
+  };
+
+  const getTransactionColor = (tx: Horizon.ServerApi.OperationRecord) => {
+    switch (tx.type) {
+      case "payment":
+        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
+        return paymentOp.from === wallet?.publicKey
+          ? "error.main"
+          : "success.main";
+      case "create_account":
+        return "info.main";
+      default:
+        return "text.primary";
+    }
+  };
+
+  // if (loading) return <LinearProgress />;
   if (!wallet) {
     return null;
   }
-
+  const marketUp = useMemo(() => marketPrice.change24h >= 0, [marketPrice]);
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       <Box
         component={motion.div}
         initial={{ opacity: 0 }}
@@ -209,8 +289,6 @@ export const WalletDashboard: React.FC = () => {
               ) : (
                 error && (
                   <>
-                    <Typography color="error">{error}</Typography>
-
                     {!wallet.IS_ACTIVATED && (
                       <Alert
                         severity="warning"
@@ -225,71 +303,65 @@ export const WalletDashboard: React.FC = () => {
                           Wallet Not Activated
                         </Typography>
                         <Typography variant="body2">
-                          Your wallet needs to be activated on the Pi Network.
-                          To activate, receive at least 1π from another user.
-                          This is required by the Pi Network to prevent spam
-                          accounts.
+                          Your wallet needs to be activated by the Pi Network.
+                          Ensure you passed KYC. This is required by the Pi
+                          Network to prevent spam accounts.
                         </Typography>
                       </Alert>
                     )}
-
-                    <Box width={"100%"} textAlign="center">
-                      <Typography variant="h3" sx={{ mt: 2, mb: 1 }}>
-                        ${" "}
-                        {(wallet.balance
-                          ? wallet.balance * marketPrice.price
-                          : 0
-                        )
-                          .toFixed(2)
-                          .toLocaleString() || "0"}
-                      </Typography>
-                      <Stack
-                        direction="row"
-                        spacing={2}
-                        justifyContent="center"
-                        alignItems="center"
-                        sx={{ mt: 1 }}
-                      >
-                        <Typography variant="body1" color="text.secondary">
-                          {wallet.balance?.toFixed(4) || "0"} π
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            backgroundColor:
-                              marketPrice.change24h >= 0
-                                ? "success.main"
-                                : "error.main",
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                            opacity: 0.8,
-                          }}
-                        >
-                          {marketPrice.change24h >= 0 ? (
-                            <ArrowDropUpIcon
-                              fontSize="small"
-                              sx={{ color: "white" }}
-                            />
-                          ) : (
-                            <ArrowDropDownIcon
-                              fontSize="small"
-                              sx={{ color: "white" }}
-                            />
-                          )}
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "white", fontWeight: 500 }}
-                          >
-                            {Math.abs(marketPrice.change24h).toFixed(2)}%
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </Box>
                   </>
                 )
               )}
+              <Box width={"100%"} textAlign="center">
+                <Typography variant="h3" sx={{ mt: 2, mb: 1 }}>
+                  ${" "}
+                  {(wallet.balance ? wallet.balance * marketPrice.price : 0)
+                    .toFixed(2)
+                    .toLocaleString() || "0"}
+                </Typography>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{ mt: 1 }}
+                >
+                  <Typography variant="body1" color="text.secondary">
+                    {wallet.balance?.toFixed(4) || "0"} π
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: marketUp ? "success.main" : "error.main",
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      opacity: 0.8,
+                    }}
+                  >
+                    {marketUp ? (
+                      <ArrowDropUpIcon
+                        fontSize="small"
+                        sx={{ color: "white" }}
+                      />
+                    ) : (
+                      <ArrowDropDownIcon
+                        fontSize="small"
+                        sx={{ color: "white" }}
+                      />
+                    )}
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "white", fontWeight: 500 }}
+                    >
+                      {`${Math.abs(marketPrice.price).toFixed(2)}π(${
+                        marketUp ? "+" : "-"
+                      }${Math.abs(marketPrice.change24h).toFixed(2)}%)`}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
             </Stack>
             <Stack
               sx={{
@@ -325,11 +397,21 @@ export const WalletDashboard: React.FC = () => {
               )}
             </Stack>
           </Paper>
+          {error && (
+            <Alert severity="info">
+              We're having issues fetching your account. Rest assured your funds
+              are safe!
+            </Alert>
+          )}
           <Paper elevation={3} sx={{ px: { sm: 1.5, lg: 3 }, py: 2 }}>
             <Typography variant="h6" gutterBottom>
               Recent Transactions
             </Typography>
-            {transactions && transactions.records.length > 0 ? (
+            {loading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : transactions && transactions.records.length > 0 ? (
               <List>
                 {transactions.records.slice(0, 5).map((tx, index) => (
                   <React.Fragment key={tx.id}>
@@ -338,36 +420,22 @@ export const WalletDashboard: React.FC = () => {
                         py: 2,
                         display: "flex",
                         justifyContent: "space-between",
+                        cursor: "pointer",
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                        },
                       }}
+                      onClick={() => setSelectedTx(tx)}
                     >
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 2 }}
                       >
-                        <Avatar
-                          sx={{
-                            bgcolor:
-                              tx.type === "payment" &&
-                              tx.from === wallet.publicKey
-                                ? "error.main"
-                                : "success.main",
-                          }}
-                        >
-                          {tx.type === "payment" &&
-                          tx.from === wallet.publicKey ? (
-                            <ArrowUpward />
-                          ) : (
-                            <CallReceivedIcon />
-                          )}
+                        <Avatar sx={{ bgcolor: getTransactionColor(tx) }}>
+                          {renderTransactionIcon(tx)}
                         </Avatar>
                         <Box>
                           <Typography variant="subtitle2">
-                            {tx.type === "payment" &&
-                            tx.from === wallet.publicKey
-                              ? `To: ${tx.to.slice(0, 4)}....${tx.to.slice(-4)}`
-                              : `From: ${tx.source_account.slice(
-                                  0,
-                                  4
-                                )}....${tx.source_account.slice(-4)}`}
+                            {getTransactionTitle(tx)}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
                             {new Date(tx.created_at).toLocaleString()}
@@ -376,22 +444,10 @@ export const WalletDashboard: React.FC = () => {
                       </Box>
                       <Typography
                         variant="subtitle2"
-                        color={
-                          tx.type === "payment" && tx.from === wallet.publicKey
-                            ? "error.main"
-                            : "success.main"
-                        }
+                        color={getTransactionColor(tx)}
                         sx={{ fontWeight: "bold" }}
                       >
-                        {tx.type === "payment" && tx.from === wallet.publicKey
-                          ? "-"
-                          : "+"}
-                        {tx.type === "payment"
-                          ? Number(
-                              parseFloat(tx.amount).toFixed(4)
-                            ).toLocaleString()
-                          : "0"}{" "}
-                        π
+                        {renderTransactionAmount(tx)}
                       </Typography>
                     </ListItem>
                     {index < transactions.records.length - 1 && (
@@ -518,6 +574,14 @@ export const WalletDashboard: React.FC = () => {
             open={showSettings}
             onClose={() => setShowSettings(false)}
           />
+
+          {selectedTx && (
+            <TransactionDetails
+              open={Boolean(selectedTx)}
+              onClose={() => setSelectedTx(null)}
+              transaction={selectedTx}
+            />
+          )}
         </Stack>
       </Box>
     </Container>

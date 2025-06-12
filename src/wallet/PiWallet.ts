@@ -98,4 +98,8 @@ export class PiWallet extends PiApi {
   public sendTransaction(destPublickey: string, amount: string, memo?: string) {
     return super.sendTransaction(this.secretKey, destPublickey, amount, memo);
   }
+
+  public async activateAccount(destPublicKey: string) {
+    return super.activateAccount(this.secretKey, destPublicKey);
+  }
 }
