@@ -30,11 +30,11 @@ type Step =
   | "create-pin"
   | "confirm-pin";
 
-interface Props {
+/*interface Props {
   onWalletCreated?: (wallet: PiWallet) => void;
-}
+}*/
 
-export const GenerateWallet: React.FC<Props> = ({ onWalletCreated }) => {
+export const GenerateWallet: React.FC = () => {
   const { createWallet } = useWallet();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>("initial");
