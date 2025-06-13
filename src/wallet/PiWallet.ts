@@ -85,8 +85,8 @@ export class PiWallet extends PiApi {
     }
   }
 
-  public async payments(limit: number = 10) {
-    return super.payments(this.publicKey, limit);
+  public async payments() {
+    return super.payments(this.publicKey);
   }
 
   public async requestAirdrop() {
