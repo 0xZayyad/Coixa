@@ -7,7 +7,6 @@ import {
   Stack,
   Tooltip,
   CircularProgress,
-  Button,
   Container,
   Modal,
   List,
@@ -38,6 +37,7 @@ import type { Horizon } from "@stellar/stellar-sdk";
 import { PiNetwork } from "../wallet/PiApi";
 import { Settings } from "../components/Settings";
 import { TransactionDetails } from "../components/TransactionDetails";
+import { useLocationHash } from "../utils";
 
 export const WalletDashboard: React.FC = () => {
   const { wallet, network, logout } = useWallet();
@@ -65,7 +65,23 @@ export const WalletDashboard: React.FC = () => {
     >();
   const [selectedTx, setSelectedTx] =
     useState<Horizon.ServerApi.OperationRecord | null>(null);
-
+  const { handleOpen: openSend, handleClose: closeSend } = useLocationHash({
+    hash: "send",
+    onOpen: () => setShowSend(true),
+    onClose: () => setShowSend(false),
+  });
+  const { handleOpen: openReceive, handleClose: closeReceive } =
+    useLocationHash({
+      hash: "receive",
+      onOpen: () => setShowQR(true),
+      onClose: () => setShowQR(false),
+    });
+  const { handleOpen: openSettings, handleClose: closeSettings } =
+    useLocationHash({
+      hash: "settings",
+      onOpen: () => setShowSettings(true),
+      onClose: () => setShowSettings(false),
+    });
   useEffect(() => {
     const fetchPrice = async () => {
       const price = await fetchPiPrice();
@@ -78,6 +94,8 @@ export const WalletDashboard: React.FC = () => {
       fetchAccountDetails();
       fetchPrice();
     }
+    // Reset tx
+    setTransactions(undefined);
   }, [wallet]);
 
   const fetchAccountDetails = async () => {
@@ -94,10 +112,6 @@ export const WalletDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error fetching account details:", error);
       setError("Could not fetch account details. Please try again later.");
-      if (wallet.network !== network && transactions) {
-        // If network has changed, reset transactions
-        setTransactions(undefined);
-      }
     } finally {
       setLoading(false);
     }
@@ -229,10 +243,7 @@ export const WalletDashboard: React.FC = () => {
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Tooltip title="Settings">
-                <IconButton
-                  onClick={() => setShowSettings(true)}
-                  color="inherit"
-                >
+                <IconButton onClick={openSettings} color="inherit">
                   <SettingsIcon />
                 </IconButton>
               </Tooltip>
@@ -305,11 +316,18 @@ export const WalletDashboard: React.FC = () => {
                         <Typography variant="subtitle2" gutterBottom>
                           Wallet Not Activated
                         </Typography>
-                        <Typography variant="body2">
-                          Your wallet needs to be activated by the Pi Network.
-                          Ensure you passed KYC. This is required by the Pi
-                          Network to prevent spam accounts.
-                        </Typography>
+                        {network === PiNetwork.MAINNET ? (
+                          <Typography variant="body2">
+                            Your wallet needs to be activated by the Pi Network.
+                            Ensure you passed KYC. This is required by the Pi
+                            Network to prevent spam accounts.
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2">
+                            Your wallet needs to be activated. Ask another
+                            quantra user to activate it for you.
+                          </Typography>
+                        )}
                       </Alert>
                     )}
                   </>
@@ -384,12 +402,12 @@ export const WalletDashboard: React.FC = () => {
                   },
                 }}
                 label="Send"
-                onClick={() => setShowSend(true)}
+                onClick={openSend}
               />
               <QuickAction
                 icon={<QrCode2Icon />}
                 label="Receive"
-                onClick={() => setShowQR(true)}
+                onClick={openReceive}
               />
               {network === PiNetwork.TESTNET && (
                 <QuickAction
@@ -478,7 +496,7 @@ export const WalletDashboard: React.FC = () => {
 
           <Modal
             open={showQR}
-            onClose={() => setShowQR(false)}
+            onClose={closeReceive}
             aria-labelledby="qr-code-modal"
             sx={{
               display: "flex",
@@ -531,18 +549,18 @@ export const WalletDashboard: React.FC = () => {
                     </Tooltip>
                   </Typography>
                   <Stack justifyContent={"flex-end"}>
-                    <IconButton>
+                    <IconButton onClick={handleShare}>
                       <ShareIcon />
                     </IconButton>
                   </Stack>
-                  <Button
+                  {/* <Button
                     variant="contained"
                     fullWidth
                     sx={{ py: 2 }}
-                    onClick={handleShare}
+                    
                   >
                     Save
-                  </Button>
+                  </Button> */}
                 </Paper>
               </motion.div>
             </AnimatePresence>
@@ -550,7 +568,7 @@ export const WalletDashboard: React.FC = () => {
 
           <Modal
             open={showSend}
-            onClose={() => setShowSend(false)}
+            onClose={closeSend}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -565,7 +583,7 @@ export const WalletDashboard: React.FC = () => {
                   wallet={wallet}
                   balance={wallet.balance || "0"}
                   onClose={() => {
-                    setShowSend(false);
+                    closeSend();
                     fetchAccountDetails();
                   }}
                 />
@@ -573,10 +591,7 @@ export const WalletDashboard: React.FC = () => {
             </Box>
           </Modal>
 
-          <Settings
-            open={showSettings}
-            onClose={() => setShowSettings(false)}
-          />
+          <Settings open={showSettings} onClose={closeSettings} />
 
           {selectedTx && (
             <TransactionDetails

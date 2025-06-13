@@ -19,7 +19,7 @@ import {
   Alert,
   ListItemButton,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { ArrowBack } from "@mui/icons-material";
 import LanguageIcon from "@mui/icons-material/Language";
 import KeyIcon from "@mui/icons-material/Key";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -91,7 +91,7 @@ export const Settings: React.FC<SettingsProps> = ({ open, onClose }) => {
               onClick={onClose}
               aria-label="close"
             >
-              <CloseIcon />
+              <ArrowBack />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
               Settings
