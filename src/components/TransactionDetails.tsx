@@ -108,6 +108,15 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
           <Box>
             <Typography variant="body2" color="text.secondary">
+              Memo
+            </Typography>
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {(transaction as any).memo || "None"}
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="body2" color="text.secondary">
               Description
             </Typography>
             <Typography variant="body1" sx={{ mt: 1, wordBreak: "break-all" }}>

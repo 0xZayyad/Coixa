@@ -15,6 +15,7 @@ interface ActivateAccountProps {
   open: boolean;
   onClose: () => void;
   wallet: PiWallet | null;
+  onActivated?: () => void;
 }
 
 const walletAddressRegex = /^G[A-Z2-7]{55}$/;
@@ -23,6 +24,7 @@ export const ActivateAccount: React.FC<ActivateAccountProps> = ({
   open,
   onClose,
   wallet,
+  onActivated = () => {},
 }) => {
   const [activationAddress, setActivationAddress] = useState("");
   const [activationError, setActivationError] = useState("");
@@ -45,6 +47,7 @@ export const ActivateAccount: React.FC<ActivateAccountProps> = ({
       setActivationError("");
       const result = await wallet.activateAccount(activationAddress);
       setActivationTxHash(result.hash);
+      onActivated();
       handleClose();
       setShowSuccessTx(true);
     } catch (err: any) {

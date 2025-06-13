@@ -13,6 +13,7 @@ import {
   ListItem,
   Avatar,
   Alert,
+  Button,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
@@ -35,9 +36,8 @@ import QuickAction from "../components/QuickAction";
 import { fetchPiPrice } from "../services/Market";
 import type { Horizon } from "@stellar/stellar-sdk";
 import { PiNetwork } from "../wallet/PiApi";
-import { Settings } from "../components/Settings";
 import { TransactionDetails } from "../components/TransactionDetails";
-import { useLocationHash } from "../utils";
+import { useLocationHash } from "../utils/utils";
 
 export const WalletDashboard: React.FC = () => {
   const { wallet, network, logout } = useWallet();
@@ -45,7 +45,6 @@ export const WalletDashboard: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showSend, setShowSend] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [marketPrice, setMarketPrice] = useState<{
@@ -75,12 +74,6 @@ export const WalletDashboard: React.FC = () => {
       hash: "receive",
       onOpen: () => setShowQR(true),
       onClose: () => setShowQR(false),
-    });
-  const { handleOpen: openSettings, handleClose: closeSettings } =
-    useLocationHash({
-      hash: "settings",
-      onOpen: () => setShowSettings(true),
-      onClose: () => setShowSettings(false),
     });
   useEffect(() => {
     const fetchPrice = async () => {
@@ -243,7 +236,10 @@ export const WalletDashboard: React.FC = () => {
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Tooltip title="Settings">
-                <IconButton onClick={openSettings} color="inherit">
+                <IconButton
+                  onClick={() => navigate("/settings")}
+                  color="inherit"
+                >
                   <SettingsIcon />
                 </IconButton>
               </Tooltip>
@@ -425,16 +421,30 @@ export const WalletDashboard: React.FC = () => {
             </Alert>
           )}
           <Paper elevation={3} sx={{ px: { sm: 1.5, lg: 3 }, py: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Recent Transactions
-            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6">Recent Transactions</Typography>
+              <Button
+                variant="text"
+                onClick={() => navigate("/history")}
+                disabled={!transactions || transactions.records.length === 0}
+              >
+                View All
+              </Button>
+            </Box>
             {loading ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
                 <CircularProgress />
               </Box>
-            ) : transactions && transactions.records.length > 0 ? (
+            ) : transactions ? (
               <List>
-                {transactions.records.slice(0, 5).map((tx, index) => (
+                {transactions.records.map((tx, index) => (
                   <React.Fragment key={tx.id}>
                     <ListItem
                       sx={{
@@ -590,8 +600,6 @@ export const WalletDashboard: React.FC = () => {
               </Paper>
             </Box>
           </Modal>
-
-          <Settings open={showSettings} onClose={closeSettings} />
 
           {selectedTx && (
             <TransactionDetails

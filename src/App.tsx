@@ -11,6 +11,8 @@ import { UnlockScreen } from "./pages/UnlockScreen";
 import { WalletProvider } from "./context/WalletContext";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import TestnetAlert from "./components/TestnetAlert";
+import { Settings } from "./components/Settings";
+import TxHistory from "./pages/TxHistory";
 
 const App: React.FC = () => {
   return (
@@ -26,6 +28,8 @@ const App: React.FC = () => {
             <Route path="/unlock" element={<UnlockScreen />} />
             <Route element={<ProtectedRoutes />}>
               <Route path="/dashboard" element={<WalletDashboard />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/history" element={<TxHistory />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

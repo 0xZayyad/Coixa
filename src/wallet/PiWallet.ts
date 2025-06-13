@@ -44,6 +44,11 @@ export class PiWallet extends PiApi {
         this.account?.balances.find((b) => b.asset_type === "native")
           ?.balance ?? ""
       );
+      /**
+       * Pi network requires a minimum balance of 1 Pi.
+       * This is a placeholder to ensure the balance is at least 1 Pi.
+       */
+      balance -= 1;
     });
     this.account = account;
     this.balance = balance;
@@ -71,9 +76,9 @@ export class PiWallet extends PiApi {
       this.balance = parseFloat(
         account.balances.find((b) => b.asset_type === "native")?.balance ?? ""
       );
+      this.balance -= 1; // Adjust for minimum balance requirement
       return this.account;
     } catch (err: any) {
-      console.log(err);
       console.log(err.response);
       if (err.response?.status == 404) {
         // Account does not exist, create a new one
@@ -85,8 +90,11 @@ export class PiWallet extends PiApi {
     }
   }
 
-  public async payments() {
-    return super.payments(this.publicKey);
+  public async payments(): Promise<any>;
+  public async payments(cursor?: string): Promise<any>;
+  public async payments(cursor?: string, limit?: number): Promise<any>;
+  public async payments(cursor: string = "1", limit: number = 10) {
+    return super.payments(this.publicKey, cursor, limit);
   }
 
   public async requestAirdrop() {

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Dialog,
   AppBar,
   Toolbar,
   IconButton,
@@ -31,12 +30,7 @@ import { SecureStorage } from "../services/SecureStorage";
 import { PinInput } from "./PinInput";
 import { ActivateAccount } from "./ActivateAccount";
 
-interface SettingsProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-export const Settings: React.FC<SettingsProps> = ({ open, onClose }) => {
+export const Settings: React.FC = () => {
   const { network, setNetwork, wallet } = useWallet();
   const [showBackup, setShowBackup] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
@@ -82,67 +76,67 @@ export const Settings: React.FC<SettingsProps> = ({ open, onClose }) => {
 
   return (
     <>
-      <Dialog fullScreen open={open} onClose={onClose}>
-        <AppBar sx={{ position: "relative" }}>
-          <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={onClose}
-              aria-label="close"
-            >
-              <ArrowBack />
-            </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
-              Settings
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Box sx={{ p: 2 }}>
-          <List>
-            <ListItem>
-              <ListItemButton onClick={handleNetworkChange}>
-                <ListItemIcon>
-                  <LanguageIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Test Network"
-                  secondary="Switch between mainnet and testnet"
-                />
-                <Switch
-                  edge="end"
-                  onChange={handleNetworkChange}
-                  checked={network === PiNetwork.TESTNET}
-                />
-              </ListItemButton>
-            </ListItem>
-            <Divider />
-            <ListItem onClick={() => setShowBackup(true)}>
-              <ListItemButton>
-                <ListItemIcon>
-                  <KeyIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Backup Recovery Phrase"
-                  secondary="View your 24-word recovery phrase"
-                />
-              </ListItemButton>
-            </ListItem>
-            <Divider />
-            <ListItem onClick={() => setShowActivate(true)}>
-              <ListItemButton disabled={!wallet?.IS_ACTIVATED}>
-                <ListItemIcon>
-                  <AccountBalanceWalletIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Activate Wallet"
-                  secondary="Activate a new wallet by sending 1 π"
-                />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Box>
-      </Dialog>
+      {/* <Dialog fullScreen open={open} onClose={onClose}> */}
+      <AppBar sx={{ position: "relative" }}>
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={() => window.history.back()}
+            aria-label="close"
+          >
+            <ArrowBack />
+          </IconButton>
+          <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
+            Settings
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Box sx={{ p: 2 }}>
+        <List>
+          <ListItem>
+            <ListItemButton onClick={handleNetworkChange}>
+              <ListItemIcon>
+                <LanguageIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Test Network"
+                secondary="Switch between mainnet and testnet"
+              />
+              <Switch
+                edge="end"
+                onChange={handleNetworkChange}
+                checked={network === PiNetwork.TESTNET}
+              />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem onClick={() => setShowBackup(true)}>
+            <ListItemButton>
+              <ListItemIcon>
+                <KeyIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Backup Recovery Phrase"
+                secondary="View your 24-word recovery phrase"
+              />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem onClick={() => setShowActivate(true)}>
+            <ListItemButton disabled={!wallet?.IS_ACTIVATED}>
+              <ListItemIcon>
+                <AccountBalanceWalletIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Activate Wallet"
+                secondary="Activate a new wallet by sending 1 π"
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
+      {/* </Dialog> */}
 
       <Modal
         open={showBackup}

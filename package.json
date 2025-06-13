@@ -38,6 +38,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^7.6.2",
     "tiny-secp256k1": "^2.2.3",
     "transform": "^1.1.2"

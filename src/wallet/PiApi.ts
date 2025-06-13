@@ -87,10 +87,15 @@ export class PiApi {
     }
   }
 
-  public async payments(publicKey: string, limit: number = 10) {
+  public async payments(
+    publicKey: string,
+    cursor: string = "1",
+    limit: number = 10
+  ) {
     return this.server
       .payments()
       .forAccount(publicKey)
+      .cursor(cursor)
       .limit(limit)
       .order("desc")
       .call();
