@@ -143,13 +143,13 @@ export const GenerateWallet: React.FC = () => {
         Select how you want to backup your wallet recovery phrase
       </Typography>
 
-      <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: "1fr 1fr" }}>
+      <Stack sx={{ flexDirection: { sm: "column", md: "row" }, gap: 2 }}>
         <Card
           sx={{
             cursor: "pointer",
             "&:hover": { transform: "translateY(-4px)", transition: "0.2s" },
           }}
-          onClick={() => handleBackupOption("google-drive")}
+          // onClick={() => handleBackupOption("google-drive")}
         >
           <CardContent>
             <Stack spacing={2} alignItems="center">
@@ -179,7 +179,7 @@ export const GenerateWallet: React.FC = () => {
             </Stack>
           </CardContent>
         </Card>
-      </Box>
+      </Stack>
     </Stack>
   );
 
