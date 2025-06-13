@@ -46,11 +46,12 @@ const TxHistory: React.FC = () => {
         const res = await nextRecord();
         setTransactions((prev) => [...prev, ...res.records]);
         setNextRecord(() => res.next);
-        setHasMore(res.records.length > LIMIT - 1);
+        setHasMore(res.records.length > LIMIT);
       } else {
         const res = await wallet.payments(LIMIT);
         setTransactions(res.records);
-        setHasMore(res.records.length > LIMIT - 1);
+        setNextRecord(() => res.next);
+        setHasMore(res.records.length === LIMIT);
       }
     } catch (err) {
       console.error("Error fetching transactions:", err);
