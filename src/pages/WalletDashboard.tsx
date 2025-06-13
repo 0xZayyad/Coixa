@@ -78,8 +78,7 @@ export const WalletDashboard: React.FC = () => {
       fetchAccountDetails();
       fetchPrice();
     }
-    console.log(wallet?.IS_ACTIVATED);
-  }, [wallet, navigate]);
+  }, [wallet]);
 
   const fetchAccountDetails = async () => {
     if (!wallet) return;
@@ -95,6 +94,10 @@ export const WalletDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error fetching account details:", error);
       setError("Could not fetch account details. Please try again later.");
+      if (wallet.network !== network && transactions) {
+        // If network has changed, reset transactions
+        setTransactions(undefined);
+      }
     } finally {
       setLoading(false);
     }

@@ -24,16 +24,17 @@ const NETWORK_PASSPHRASES = {
 };
 
 export class PiApi {
-  // private network: PiNetwork;
   private horizonUrl: string;
   private networkPassphrase: string;
   public server: Horizon.Server;
+  public network: PiNetwork;
 
   constructor(network: PiNetwork = PiNetwork.TESTNET) {
     // this.network = network;
     this.networkPassphrase = NETWORK_PASSPHRASES[network];
     this.horizonUrl = HORIZON_ENDPOINTS[network];
     this.server = new Horizon.Server(this.horizonUrl);
+    this.network = network;
   }
 
   /**

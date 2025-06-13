@@ -86,7 +86,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
       const walletData = await SecureStorage.getWallet(pin);
       const unlockedWallet = PiWallet.fromMnemonic(
         walletData.mnemonic,
-        SecureStorage.getNetwork()
+        network
       );
       setWallet(unlockedWallet);
       await SecureStorage.createSession();
