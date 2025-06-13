@@ -4,7 +4,6 @@ import {
   Avatar,
   Box,
   CircularProgress,
-  Container,
   IconButton,
   List,
   ListItem,
@@ -23,19 +22,20 @@ import { useWallet } from "../context/WalletContext";
 import type { Horizon } from "@stellar/stellar-sdk";
 import { TransactionDetails } from "../components/TransactionDetails";
 import InfiniteScroll from "react-infinite-scroll-component";
+import type { PiTx } from "../wallet/PiApi";
 
+const LIMIT = 10; // Number of transactions to fetch per request
 const TxHistory: React.FC = () => {
   const { wallet } = useWallet();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [transactions, setTransactions] = useState<
-    Horizon.ServerApi.OperationRecord[]
-  >([]);
-  const [selectedTx, setSelectedTx] =
-    useState<Horizon.ServerApi.OperationRecord | null>(null);
+  const [transactions, setTransactions] = useState<PiTx[]>([]);
+  const [selectedTx, setSelectedTx] = useState<PiTx | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [nextRecord, setNextRecord] = useState<
+    (() => Promise<Horizon.ServerApi.CollectionPage<PiTx>>) | null
+  >(null);
 
   useEffect(() => {
     if (wallet) {
@@ -43,23 +43,23 @@ const TxHistory: React.FC = () => {
     }
   }, [wallet]);
 
-  const fetchTransactions = async (cursor?: string) => {
+  const fetchTransactions = async (isNext: boolean = false) => {
     if (!wallet || loading) return;
 
     try {
       setLoading(true);
       setError(null);
-      const response = await wallet.payments(cursor);
-      const newTxs = response.records;
-
-      if (cursor) {
-        setTransactions((prev) => [...prev, ...newTxs]);
+      if (isNext) {
+        if (!nextRecord) return;
+        const res = await nextRecord();
+        setTransactions((prev) => [...prev, ...res.records]);
+        setNextRecord(() => res.next);
+        setHasMore(res.records.length > LIMIT - 1);
       } else {
-        setTransactions(newTxs);
+        const res = await wallet.payments(LIMIT);
+        setTransactions(res.records);
+        setHasMore(res.records.length > LIMIT - 1);
       }
-
-      setHasMore(response.records.length > 0);
-      setNextCursor(response.next());
     } catch (err) {
       console.error("Error fetching transactions:", err);
       setError("Could not fetch transactions. Please try again later.");
@@ -69,8 +69,8 @@ const TxHistory: React.FC = () => {
   };
 
   const loadMore = () => {
-    if (nextCursor) {
-      fetchTransactions(nextCursor);
+    if (nextRecord && hasMore) {
+      fetchTransactions(true);
     }
   };
 
@@ -171,7 +171,7 @@ const TxHistory: React.FC = () => {
   if (!wallet) return null;
 
   return (
-    <Container maxWidth="lg">
+    <>
       <AppBar sx={{ position: "relative" }}>
         <Toolbar>
           <IconButton
@@ -189,77 +189,76 @@ const TxHistory: React.FC = () => {
       </AppBar>
 
       <Paper elevation={3} sx={{ mt: 2, minHeight: "calc(100vh - 120px)" }}>
-        {error ? (
-          <Alert severity="error" sx={{ m: 2 }}>
-            {error}
-          </Alert>
-        ) : (
-          <InfiniteScroll
-            dataLength={transactions.length}
-            next={loadMore}
-            hasMore={hasMore}
-            loader={
-              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                <CircularProgress />
-              </Box>
-            }
-            endMessage={
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                align="center"
-                sx={{ p: 2 }}
-              >
-                No more transactions
-              </Typography>
-            }
-          >
-            <List>
-              {transactions.map((tx, index) => (
-                <React.Fragment key={tx.id}>
-                  <ListItem
-                    sx={{
-                      py: 2,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      cursor: "pointer",
-                      "&:hover": {
-                        bgcolor: "action.hover",
-                      },
-                    }}
-                    onClick={() => setSelectedTx(tx)}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Avatar sx={{ bgcolor: getTransactionColor(tx) }}>
-                        {renderTransactionIcon(tx)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="subtitle2">
-                          {getTransactionTitle(tx)}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(tx.created_at).toLocaleString()}
-                        </Typography>
-                      </Box>
+        <InfiniteScroll
+          dataLength={transactions.length}
+          next={loadMore}
+          hasMore={hasMore}
+          loader={
+            <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+              <CircularProgress />
+            </Box>
+          }
+          endMessage={
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              align="center"
+              sx={{ p: 2 }}
+            >
+              No more transactions
+            </Typography>
+          }
+        >
+          <List>
+            {transactions.map((tx, index) => (
+              <React.Fragment key={tx.id}>
+                <ListItem
+                  sx={{
+                    py: 2,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                  onClick={() => setSelectedTx(tx)}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Avatar sx={{ bgcolor: getTransactionColor(tx) }}>
+                      {renderTransactionIcon(tx)}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="subtitle2">
+                        {getTransactionTitle(tx)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(tx.created_at).toLocaleString()}
+                      </Typography>
                     </Box>
-                    {renderTransactionAmount(tx)}
-                  </ListItem>
-                  {index < transactions.length - 1 && (
-                    <Box sx={{ width: "100%", px: 2 }}>
-                      <Box
-                        sx={{
-                          width: "100%",
-                          height: "1px",
-                          bgcolor: "divider",
-                        }}
-                      />
-                    </Box>
-                  )}
-                </React.Fragment>
-              ))}
-            </List>
-          </InfiniteScroll>
-        )}
+                  </Box>
+                  {renderTransactionAmount(tx)}
+                </ListItem>
+                {index < transactions.length - 1 && (
+                  <Box sx={{ width: "100%", px: 2 }}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "1px",
+                        bgcolor: "divider",
+                      }}
+                    />
+                  </Box>
+                )}
+              </React.Fragment>
+            ))}
+          </List>
+          {error && (
+            <Alert severity="error" sx={{ m: 2 }}>
+              {error}
+            </Alert>
+          )}
+        </InfiniteScroll>
       </Paper>
 
       {selectedTx && (
@@ -269,7 +268,7 @@ const TxHistory: React.FC = () => {
           transaction={selectedTx}
         />
       )}
-    </Container>
+    </>
   );
 };
 

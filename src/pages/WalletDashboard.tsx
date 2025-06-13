@@ -98,10 +98,8 @@ export const WalletDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
       await wallet.loadAccount();
-      const txs = await wallet.payments();
+      const txs = await wallet.payments(5);
       setTransactions(txs);
-      console.log(txs);
-      console.log(wallet.account);
     } catch (error) {
       console.error("Error fetching account details:", error);
       setError("Could not fetch account details. Please try again later.");

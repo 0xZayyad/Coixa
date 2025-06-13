@@ -2,7 +2,7 @@ import * as ed25519 from "micro-key-producer/slip10.js";
 import { Horizon, Keypair } from "@stellar/stellar-sdk";
 import { WalletUtils } from "./WalletUtils";
 import { InvalidMnemonicError, WalletDerivationError } from "./errors";
-import { PiApi, type PiNetwork } from "./PiApi";
+import { PiApi, type PiNetwork, type PiTx } from "./PiApi";
 
 const DERIVATION_PATH = "m/44'/314159'/0'";
 
@@ -90,11 +90,12 @@ export class PiWallet extends PiApi {
     }
   }
 
-  public async payments(): Promise<any>;
-  public async payments(cursor?: string): Promise<any>;
-  public async payments(cursor?: string, limit?: number): Promise<any>;
-  public async payments(cursor: string = "1", limit: number = 10) {
-    return super.payments(this.publicKey, cursor, limit);
+  public async payments(): Promise<Horizon.ServerApi.CollectionPage<PiTx>>;
+  public async payments(
+    limit?: number
+  ): Promise<Horizon.ServerApi.CollectionPage<PiTx>>;
+  public async payments(limit: number = 10) {
+    return super.payments(this.publicKey, limit);
   }
 
   public async requestAirdrop() {

@@ -23,6 +23,14 @@ const NETWORK_PASSPHRASES = {
   [PiNetwork.TESTNET]: "Pi Testnet",
 };
 
+export type PiTx =
+  | Horizon.ServerApi.CreateAccountOperationRecord
+  | Horizon.ServerApi.PaymentOperationRecord
+  | Horizon.ServerApi.PathPaymentOperationRecord
+  | Horizon.ServerApi.AccountMergeOperationRecord
+  | Horizon.ServerApi.PathPaymentStrictSendOperationRecord
+  | Horizon.ServerApi.InvokeHostFunctionOperationRecord;
+
 export class PiApi {
   private horizonUrl: string;
   private networkPassphrase: string;
@@ -87,15 +95,10 @@ export class PiApi {
     }
   }
 
-  public async payments(
-    publicKey: string,
-    cursor: string = "1",
-    limit: number = 10
-  ) {
+  public async payments(publicKey: string, limit: number = 10) {
     return this.server
       .payments()
       .forAccount(publicKey)
-      .cursor(cursor)
       .limit(limit)
       .order("desc")
       .call();
