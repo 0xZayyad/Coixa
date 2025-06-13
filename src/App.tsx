@@ -11,7 +11,7 @@ import { UnlockScreen } from "./pages/UnlockScreen";
 import { WalletProvider } from "./context/WalletContext";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import TestnetAlert from "./components/TestnetAlert";
-import { Settings } from "./components/Settings";
+import { Settings } from "./pages/Settings";
 import TxHistory from "./pages/TxHistory";
 
 const App: React.FC = () => {

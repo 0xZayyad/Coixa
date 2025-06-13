@@ -4,7 +4,7 @@ import { Box, TextField, Typography } from "@mui/material";
 interface PinInputProps {
   onComplete: (pin: string) => void;
   error?: string;
-  resetKey?: string | number; // Add reset key prop
+  resetKey?: string | number;
 }
 
 export const PinInput: React.FC<PinInputProps> = ({
@@ -15,7 +15,6 @@ export const PinInput: React.FC<PinInputProps> = ({
   const [pin, setPin] = useState<string[]>(Array(6).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Reset state when resetKey changes
   useEffect(() => {
     setPin(Array(6).fill(""));
     if (inputRefs.current[0]) {
@@ -83,15 +82,17 @@ export const PinInput: React.FC<PinInputProps> = ({
           <TextField
             key={index}
             inputRef={(el) => (inputRefs.current[index] = el)}
-            value={digit}
+            value={digit ? "•" : ""}
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
             onPaste={handlePaste}
+            type="password"
             inputProps={{
               maxLength: 1,
               sx: {
                 textAlign: "center",
                 fontSize: { xs: "1.2rem", sm: "1.5rem" },
+                caretColor: "transparent",
               },
             }}
             sx={{

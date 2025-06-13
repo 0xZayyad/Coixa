@@ -1,28 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
   AppBar,
-  Avatar,
   Box,
   CircularProgress,
   IconButton,
-  List,
-  ListItem,
   Paper,
   Toolbar,
   Typography,
   Alert,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import ArrowUpward from "@mui/icons-material/ArrowUpward";
-import CallReceivedIcon from "@mui/icons-material/CallReceived";
-import History from "@mui/icons-material/History";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "../context/WalletContext";
 import type { Horizon } from "@stellar/stellar-sdk";
-import { TransactionDetails } from "../components/TransactionDetails";
 import InfiniteScroll from "react-infinite-scroll-component";
 import type { PiTx } from "../wallet/PiApi";
+import TxList from "../components/TxList";
 
 const LIMIT = 10; // Number of transactions to fetch per request
 const TxHistory: React.FC = () => {
@@ -31,7 +24,6 @@ const TxHistory: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<PiTx[]>([]);
-  const [selectedTx, setSelectedTx] = useState<PiTx | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [nextRecord, setNextRecord] = useState<
     (() => Promise<Horizon.ServerApi.CollectionPage<PiTx>>) | null
@@ -73,106 +65,11 @@ const TxHistory: React.FC = () => {
       fetchTransactions(true);
     }
   };
-
-  const renderTransactionIcon = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return paymentOp.from === wallet?.publicKey ? (
-          <ArrowUpward />
-        ) : (
-          <CallReceivedIcon />
-        );
-      case "create_account":
-        return <AccountBalanceWalletIcon />;
-      default:
-        return <History />;
-    }
-  };
-
-  const getTransactionTitle = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return paymentOp.from === wallet?.publicKey
-          ? `To: ${paymentOp.to.slice(0, 4)}....${paymentOp.to.slice(-4)}`
-          : `From: ${paymentOp.from.slice(0, 4)}....${paymentOp.from.slice(
-              -4
-            )}`;
-      case "create_account":
-        const createOp = tx as Horizon.ServerApi.CreateAccountOperationRecord;
-        const initial =
-          createOp.funder === wallet?.publicKey ? "Funded" : "Created by";
-        return `${initial} ${createOp.funder.slice(
-          0,
-          4
-        )}....${createOp.funder.slice(-4)}`;
-      default:
-        return tx.type.replace(/_/g, " ");
-    }
-  };
-
-  const renderTransactionAmount = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return (
-          <Typography
-            variant="subtitle2"
-            color={
-              paymentOp.from === wallet?.publicKey
-                ? "error.main"
-                : "success.main"
-            }
-            sx={{ fontWeight: "bold" }}
-          >
-            {paymentOp.from === wallet?.publicKey ? "-" : "+"}
-            {Number(parseFloat(paymentOp.amount).toFixed(4)).toLocaleString()} π
-          </Typography>
-        );
-      case "create_account":
-        const createOp = tx as Horizon.ServerApi.CreateAccountOperationRecord;
-        return (
-          <Typography
-            variant="subtitle2"
-            color="info.main"
-            sx={{ fontWeight: "bold" }}
-          >
-            {createOp.funder === wallet?.publicKey ? "-" : "+"}
-            {Number(
-              parseFloat(createOp.starting_balance).toFixed(4)
-            ).toLocaleString()}{" "}
-            π
-          </Typography>
-        );
-      default:
-        return (
-          <Typography variant="subtitle2" color="text.primary">
-            N/A
-          </Typography>
-        );
-    }
-  };
-
-  const getTransactionColor = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return paymentOp.from === wallet?.publicKey
-          ? "error.main"
-          : "success.main";
-      case "create_account":
-        return "info.main";
-      default:
-        return "text.primary";
-    }
-  };
-
   if (!wallet) return null;
 
   return (
     <>
-      <AppBar sx={{ position: "relative" }}>
+      <AppBar sx={{ position: "sticky" }}>
         <Toolbar>
           <IconButton
             edge="start"
@@ -209,50 +106,7 @@ const TxHistory: React.FC = () => {
             </Typography>
           }
         >
-          <List>
-            {transactions.map((tx, index) => (
-              <React.Fragment key={tx.id}>
-                <ListItem
-                  sx={{
-                    py: 2,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    cursor: "pointer",
-                    "&:hover": {
-                      bgcolor: "action.hover",
-                    },
-                  }}
-                  onClick={() => setSelectedTx(tx)}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Avatar sx={{ bgcolor: getTransactionColor(tx) }}>
-                      {renderTransactionIcon(tx)}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="subtitle2">
-                        {getTransactionTitle(tx)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(tx.created_at).toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {renderTransactionAmount(tx)}
-                </ListItem>
-                {index < transactions.length - 1 && (
-                  <Box sx={{ width: "100%", px: 2 }}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                        height: "1px",
-                        bgcolor: "divider",
-                      }}
-                    />
-                  </Box>
-                )}
-              </React.Fragment>
-            ))}
-          </List>
+          <TxList txs={transactions} />
           {error && (
             <Alert severity="error" sx={{ m: 2 }}>
               {error}
@@ -260,14 +114,6 @@ const TxHistory: React.FC = () => {
           )}
         </InfiniteScroll>
       </Paper>
-
-      {selectedTx && (
-        <TransactionDetails
-          open={Boolean(selectedTx)}
-          onClose={() => setSelectedTx(null)}
-          transaction={selectedTx}
-        />
-      )}
     </>
   );
 };

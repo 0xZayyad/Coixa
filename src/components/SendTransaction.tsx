@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Scanner, type IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { PiWallet } from "../wallet";
 import { SuccessTx } from "./SuccessTx";
+import { ConfirmPin } from "./ConfirmPin";
 
 interface SendTransactionProps {
   wallet: PiWallet;
@@ -42,6 +43,7 @@ export const SendTransaction: React.FC<SendTransactionProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [txHash, setTxHash] = useState("");
+  const [showPinConfirm, setShowPinConfirm] = useState(false);
 
   const availableBalance =
     typeof balance == "string" ? parseFloat(balance) : balance;
@@ -61,7 +63,10 @@ export const SendTransaction: React.FC<SendTransactionProps> = ({
 
   const handleSend = async () => {
     if (!amount || !destinationAddress) return;
+    setShowPinConfirm(true);
+  };
 
+  const handleConfirmedSend = async () => {
     try {
       setSending(true);
       setError(null);
@@ -337,6 +342,13 @@ export const SendTransaction: React.FC<SendTransactionProps> = ({
           onClose();
         }}
         txHash={txHash}
+      />
+      <ConfirmPin
+        open={showPinConfirm}
+        onClose={() => setShowPinConfirm(false)}
+        onConfirm={handleConfirmedSend}
+        title="Confirm Transaction"
+        description="Please enter your PIN to confirm this transaction"
       />
     </>
   );

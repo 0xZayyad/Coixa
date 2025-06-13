@@ -27,8 +27,8 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { useWallet } from "../context/WalletContext";
 import { PiNetwork } from "../wallet/PiApi";
 import { SecureStorage } from "../services/SecureStorage";
-import { PinInput } from "./PinInput";
-import { ActivateAccount } from "./ActivateAccount";
+import { PinInput } from "../components/PinInput";
+import { ActivateAccount } from "../components/ActivateAccount";
 
 export const Settings: React.FC = () => {
   const { network, setNetwork, wallet } = useWallet();
@@ -77,7 +77,7 @@ export const Settings: React.FC = () => {
   return (
     <>
       {/* <Dialog fullScreen open={open} onClose={onClose}> */}
-      <AppBar sx={{ position: "relative" }}>
+      <AppBar sx={{ position: "sticky" }}>
         <Toolbar>
           <IconButton
             edge="start"

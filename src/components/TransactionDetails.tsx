@@ -68,7 +68,7 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
   return (
     <Dialog fullScreen open={open} onClose={onClose}>
-      <AppBar sx={{ position: "relative" }}>
+      <AppBar sx={{ position: "sticky" }}>
         <Toolbar>
           <IconButton
             edge="start"

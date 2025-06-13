@@ -9,9 +9,6 @@ import {
   CircularProgress,
   Container,
   Modal,
-  List,
-  ListItem,
-  Avatar,
   Alert,
   Button,
 } from "@mui/material";
@@ -21,8 +18,7 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SendIcon from "@mui/icons-material/Send";
 import ShareIcon from "@mui/icons-material/Share";
-import { Refresh, ArrowUpward, Add, History } from "@mui/icons-material";
-import CallReceivedIcon from "@mui/icons-material/CallReceived";
+import { Refresh, Add } from "@mui/icons-material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CheckIcon from "@mui/icons-material/Check";
@@ -35,9 +31,9 @@ import { useWallet } from "../context/WalletContext";
 import QuickAction from "../components/QuickAction";
 import { fetchPiPrice } from "../services/Market";
 import type { Horizon } from "@stellar/stellar-sdk";
-import { PiNetwork } from "../wallet/PiApi";
-import { TransactionDetails } from "../components/TransactionDetails";
+import { PiNetwork, type PiTx } from "../wallet/PiApi";
 import { useLocationHash } from "../utils/utils";
+import TxList from "../components/TxList";
 
 export const WalletDashboard: React.FC = () => {
   const { wallet, network, logout } = useWallet();
@@ -52,18 +48,7 @@ export const WalletDashboard: React.FC = () => {
     change24h: number;
   }>({ price: 1, change24h: 0 });
   const [transactions, setTransactions] =
-    useState<
-      Horizon.ServerApi.CollectionPage<
-        | Horizon.ServerApi.PaymentOperationRecord
-        | Horizon.ServerApi.CreateAccountOperationRecord
-        | Horizon.ServerApi.AccountMergeOperationRecord
-        | Horizon.ServerApi.PathPaymentOperationRecord
-        | Horizon.ServerApi.PathPaymentStrictSendOperationRecord
-        | Horizon.ServerApi.InvokeHostFunctionOperationRecord
-      >
-    >();
-  const [selectedTx, setSelectedTx] =
-    useState<Horizon.ServerApi.OperationRecord | null>(null);
+    useState<Horizon.ServerApi.CollectionPage<PiTx>>();
   const { handleOpen: openSend, handleClose: closeSend } = useLocationHash({
     hash: "send",
     onOpen: () => setShowSend(true),
@@ -126,85 +111,6 @@ export const WalletDashboard: React.FC = () => {
 
   const handleShare = async () => {
     await navigator.share({ text: wallet?.publicKey });
-  };
-
-  const renderTransactionIcon = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return paymentOp.from === wallet?.publicKey ? (
-          <ArrowUpward />
-        ) : (
-          <CallReceivedIcon />
-        );
-      case "create_account":
-        return <AccountBalanceWalletIcon />;
-      default:
-        return <History />;
-    }
-  };
-
-  const renderTransactionAmount = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return (
-          <>
-            {paymentOp.from === wallet?.publicKey ? "-" : "+"}
-            {Number(parseFloat(paymentOp.amount).toFixed(4)).toLocaleString()} π
-          </>
-        );
-      case "create_account":
-        const createOp = tx as Horizon.ServerApi.CreateAccountOperationRecord;
-        return (
-          <>
-            {createOp.funder === wallet?.publicKey ? "-" : "+"}$
-            {Number(
-              parseFloat(createOp.starting_balance).toFixed(4)
-            ).toLocaleString()}{" "}
-            π
-          </>
-        );
-      default:
-        return "N/A";
-    }
-  };
-
-  const getTransactionTitle = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return paymentOp.from === wallet?.publicKey
-          ? `To: ${paymentOp.to.slice(0, 4)}....${paymentOp.to.slice(-4)}`
-          : `From: ${paymentOp.from.slice(0, 4)}....${paymentOp.from.slice(
-              -4
-            )}`;
-      case "create_account":
-        const createOp = tx as Horizon.ServerApi.CreateAccountOperationRecord;
-        const initial =
-          createOp.funder === wallet?.publicKey ? "Funded" : "Created by";
-        return `${initial} ${createOp.funder.slice(
-          0,
-          4
-        )}....${createOp.funder.slice(-4)}`;
-
-      default:
-        return tx.type.replace(/_/g, " ");
-    }
-  };
-
-  const getTransactionColor = (tx: Horizon.ServerApi.OperationRecord) => {
-    switch (tx.type) {
-      case "payment":
-        const paymentOp = tx as Horizon.ServerApi.PaymentOperationRecord;
-        return paymentOp.from === wallet?.publicKey
-          ? "error.main"
-          : "success.main";
-      case "create_account":
-        return "info.main";
-      default:
-        return "text.primary";
-    }
   };
 
   // if (loading) return <LinearProgress />;
@@ -441,58 +347,7 @@ export const WalletDashboard: React.FC = () => {
                 <CircularProgress />
               </Box>
             ) : transactions ? (
-              <List>
-                {transactions.records.map((tx, index) => (
-                  <React.Fragment key={tx.id}>
-                    <ListItem
-                      sx={{
-                        py: 2,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        cursor: "pointer",
-                        "&:hover": {
-                          bgcolor: "action.hover",
-                        },
-                      }}
-                      onClick={() => setSelectedTx(tx)}
-                    >
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                      >
-                        <Avatar sx={{ bgcolor: getTransactionColor(tx) }}>
-                          {renderTransactionIcon(tx)}
-                        </Avatar>
-                        <Box>
-                          <Typography variant="subtitle2">
-                            {getTransactionTitle(tx)}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(tx.created_at).toLocaleString()}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Typography
-                        variant="subtitle2"
-                        color={getTransactionColor(tx)}
-                        sx={{ fontWeight: "bold" }}
-                      >
-                        {renderTransactionAmount(tx)}
-                      </Typography>
-                    </ListItem>
-                    {index < transactions.records.length - 1 && (
-                      <Box sx={{ width: "100%", px: 2 }}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "1px",
-                            bgcolor: "divider",
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </React.Fragment>
-                ))}
-              </List>
+              <TxList txs={transactions.records} />
             ) : (
               <Box sx={{ p: 4, textAlign: "center" }}>
                 <Typography variant="body2" color="text.secondary">
@@ -598,14 +453,6 @@ export const WalletDashboard: React.FC = () => {
               </Paper>
             </Box>
           </Modal>
-
-          {selectedTx && (
-            <TransactionDetails
-              open={Boolean(selectedTx)}
-              onClose={() => setSelectedTx(null)}
-              transaction={selectedTx}
-            />
-          )}
         </Stack>
       </Box>
     </Container>
