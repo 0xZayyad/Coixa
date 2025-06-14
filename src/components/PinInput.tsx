@@ -86,7 +86,7 @@ export const PinInput: React.FC<PinInputProps> = ({
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
             onPaste={handlePaste}
-            type="number"
+            type="password"
             inputProps={{
               maxLength: 1,
               sx: {
