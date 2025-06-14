@@ -29,9 +29,16 @@ export const LandingPage: React.FC = () => {
             variant="h3"
             align="center"
             gutterBottom
+            sx={{ mb: 2, p: 2 }}
+          >
+            Welcome to Coixa
+          </Typography>
+            variant="body2"
+            align="center"
+            gutterBottom
             sx={{ mb: 4, p: 2 }}
           >
-            Welcome to Quantra Wallet
+            The ultimate Pi wallet for all Pi network tools.
           </Typography>
         </motion.div>
 
