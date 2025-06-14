@@ -1,6 +1,6 @@
-# Quantra Wallet
+# Coixa Wallet
 
-Quantra is a modern, open-source wallet application for the Pi Network, built with React and TypeScript. It enables users to securely create, import, and manage Pi cryptocurrency wallets, perform transactions, and view account activity with a user-friendly interface.
+Coixa is a modern, open-source wallet application for the Pi Network, built with React and TypeScript. It enables users to securely create, import, and manage Pi cryptocurrency wallets, perform transactions, and view account activity with a user-friendly interface.
 
 ---
 
@@ -18,7 +18,7 @@ Quantra is a modern, open-source wallet application for the Pi Network, built wi
 
 ## Overview
 
-**Quantra Wallet** aims to provide a seamless, secure, and approachable interface for managing digital assets on the Pi Network. The application leverages modern frontend practices and robust blockchain integrations to deliver an optimal user experience. 
+**Coixa Wallet** aims to provide a seamless, secure, and approachable interface for managing digital assets on the Pi Network. The application leverages modern frontend practices and robust blockchain integrations to deliver an optimal user experience. 
 
 - **Domain:** Financial Technology (FinTech), Cryptocurrency Wallet
 - **Supported Networks:** Pi Network Mainnet & Testnet
@@ -64,8 +64,8 @@ Quantra is a modern, open-source wallet application for the Pi Network, built wi
 ### Installation
 
 ```bash
-git clone https://github.com/mz0x0100/Quantra.git
-cd Quantra
+git clone https://github.com/mz0x0100/Coixa.git
+cd Coixa
 npm install    # or yarn install
 ```
 
