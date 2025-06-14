@@ -39,7 +39,7 @@ export const LandingPage: React.FC = () => {
             gutterBottom
             sx={{ mb: 4, p: 2 }}
           >
-            The ultimate Pi wallet for all Pi network tools.
+            The Ultimate Web3 Wallet Built for the Pi Network.
           </Typography>
         </motion.div>
 
