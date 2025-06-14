@@ -86,7 +86,7 @@ export const PinInput: React.FC<PinInputProps> = ({
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
             onPaste={handlePaste}
-            type="password"
+            type="number"
             inputProps={{
               maxLength: 1,
               sx: {
@@ -94,7 +94,6 @@ export const PinInput: React.FC<PinInputProps> = ({
                 fontSize: { xs: "1.2rem", sm: "1.5rem" },
                 caretColor: "transparent",
               },
-              type: "number",
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
