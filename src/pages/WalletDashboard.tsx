@@ -10,6 +10,7 @@ import {
   Container,
   Modal,
   Alert,
+  Avatar,
   Button,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -135,6 +136,7 @@ export const WalletDashboard: React.FC = () => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Avatar alt="Coixa" src="/coixa.png" sx={{width: 100, height: 100}} />
               <AccountBalanceWalletIcon sx={{ fontSize: 28 }} />
               <Typography variant="h5">Coixa</Typography>
             </Box>
