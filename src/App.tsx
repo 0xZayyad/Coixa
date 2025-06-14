@@ -10,7 +10,7 @@ import { WalletDashboard } from "./pages/WalletDashboard";
 import { UnlockScreen } from "./pages/UnlockScreen";
 import { WalletProvider } from "./context/WalletContext";
 import ProtectedRoutes from "./components/ProtectedRoutes";
-import TestnetAlert from "./components/TestnetAlert";
+//import TestnetAlert from "./components/TestnetAlert";
 import { Settings } from "./pages/Settings";
 import TxHistory from "./pages/TxHistory";
 
@@ -20,7 +20,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <BrowserRouter>
         <WalletProvider>
-          <TestnetAlert />
+          {/*<TestnetAlert />*/}
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/create" element={<GenerateWallet />} />
