@@ -311,13 +311,13 @@ export const WalletDashboard: React.FC = () => {
                 label="Receive"
                 onClick={openReceive}
               />
-              {network === PiNetwork.TESTNET && (
+              {/*network === PiNetwork.TESTNET && (
                 <QuickAction
                   icon={<Add />}
                   label="Airdrop"
                   onClick={handleShare}
                 />
-              )}
+              )*/}
             </Stack>
           </Paper>
           {error && (
