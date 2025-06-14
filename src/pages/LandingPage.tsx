@@ -29,7 +29,7 @@ export const LandingPage: React.FC = () => {
             variant="h3"
             align="center"
             gutterBottom
-            sx={{ mb: 2, p: 2 }}
+            sx={{ p: 2 }}
           >
             Welcome to Coixa
           </Typography>
