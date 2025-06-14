@@ -136,9 +136,9 @@ export const WalletDashboard: React.FC = () => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Avatar alt="Coixa" src="/coixa.png" sx={{width: 100, height: 100}} />
+              <Avatar alt="Coixa" src="/coixa.png" sx={{width: 30, height: 30}} />
               <AccountBalanceWalletIcon sx={{ fontSize: 28 }} />
-              <Typography variant="h5">Coixa</Typography>
+              {/*<Typography variant="h5">Coixa</Typography>*/}
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Tooltip title="Settings">
