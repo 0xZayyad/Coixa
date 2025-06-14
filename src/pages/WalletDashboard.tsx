@@ -136,7 +136,7 @@ export const WalletDashboard: React.FC = () => {
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <AccountBalanceWalletIcon sx={{ fontSize: 28 }} />
-              <Typography variant="h5">Quantra</Typography>
+              <Typography variant="h5">Coixa</Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Tooltip title="Settings">
