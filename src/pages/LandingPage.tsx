@@ -33,6 +33,7 @@ export const LandingPage: React.FC = () => {
           >
             Welcome to Coixa
           </Typography>
+          <Typography
             variant="body2"
             align="center"
             gutterBottom
