@@ -20,7 +20,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SendIcon from "@mui/icons-material/Send";
 import ShareIcon from "@mui/icons-material/Share";
 import { Refresh, Add } from "@mui/icons-material";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+//import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CheckIcon from "@mui/icons-material/Check";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -137,8 +137,8 @@ export const WalletDashboard: React.FC = () => {
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Avatar alt="Coixa" src="/coixa.png" sx={{width: 30, height: 30}} />
-              <AccountBalanceWalletIcon sx={{ fontSize: 28 }} />
-              {/*<Typography variant="h5">Coixa</Typography>*/}
+              {/*<AccountBalanceWalletIcon sx={{ fontSize: 28 }} />*/}
+              <Typography variant="h5">Coixa</Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Tooltip title="Settings">
