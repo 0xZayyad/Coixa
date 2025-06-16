@@ -381,7 +381,7 @@ export const WalletDashboard: React.FC = () => {
                     p: 4,
                     bgcolor: "background.paper",
                     borderRadius: 2,
-                    maxWidth: "90vw",
+                    maxWidth: "95vw",
                     textAlign: "center",
                   }}
                 >
@@ -389,7 +389,7 @@ export const WalletDashboard: React.FC = () => {
                     Scan QR Code
                   </Typography>
                   <Box sx={{ my: 2 }}>
-                    <QRCode value={wallet.publicKey} size={250} />
+                    <QRCode value={wallet.publicKey} size={220} />
                   </Box>
                   <Typography
                     variant="body2"
