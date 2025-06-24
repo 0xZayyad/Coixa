@@ -136,7 +136,11 @@ export const WalletDashboard: React.FC = () => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Avatar alt="Coixa" src="/coixa.png" sx={{width: 30, height: 30}} />
+              <Avatar
+                alt="Coixa"
+                src="/coixa.png"
+                sx={{ width: 30, height: 30 }}
+              />
               {/*<AccountBalanceWalletIcon sx={{ fontSize: 28 }} />*/}
               <Typography variant="h5">Coixa</Typography>
             </Box>
@@ -326,7 +330,7 @@ export const WalletDashboard: React.FC = () => {
               are safe!
             </Alert>
           )}
-          <Paper elevation={3} sx={{ px: { sm: 1.5, lg: 3 }, py: 2 }}>
+          <Paper elevation={3} sx={{ px: { sm: 1.5, lg: 3 }, p: 2 }}>
             <Box
               sx={{
                 display: "flex",
