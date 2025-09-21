@@ -26,7 +26,7 @@ interface SendTransactionProps {
   onClose: () => void;
 }
 
-const walletRegex = /^G[A-Z2-7]{55}$/;
+const walletRegex = /^[A-Z2-7]{56,90}$/;
 const PI_NETWORK_FEE = 0.01;
 
 export const SendTransaction: React.FC<SendTransactionProps> = ({
